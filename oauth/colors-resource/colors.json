@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Ocean Blue",
+    "hex": "#006994",
+    "description": "A deep, calming blue reminiscent of ocean depths"
+  },
+  {
+    "id": 2,
+    "name": "Sunset Orange",
+    "hex": "#FF6B35",
+    "description": "A warm, vibrant orange like a beautiful sunset"
+  },
+  {
+    "id": 3,
+    "name": "Forest Green",
+    "hex": "#228B22",
+    "description": "A rich green that captures the essence of a lush forest"
+  },
+  {
+    "id": 4,
+    "name": "Royal Purple",
+    "hex": "#6A0DAD",
+    "description": "An elegant purple fit for royalty"
+  },
+  {
+    "id": 5,
+    "name": "Golden Yellow",
+    "hex": "#FFD700",
+    "description": "A bright, cheerful yellow like pure gold"
+  }
+]
