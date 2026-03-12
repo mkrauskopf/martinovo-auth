@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { spawn } = require('child_process')
-const { colorLog, BRIGHT_BLUE, BRIGHT_GREEN, BRIGHT_MAGENTA } = require('./colors')
+const { colorLog, BRIGHT_YELLOW, BRIGHT_GREEN, BRIGHT_MAGENTA } = require('./colors')
 
 console.log('🚀 Starting OAuth Application and Resource Servers...\n')
 
@@ -19,7 +19,7 @@ spawnNode = (scriptPath, appName, color) => {
     return app
 }
 
-const favoritesApp = spawnNode('favorites-app/application.js', 'Favorites App', BRIGHT_BLUE)
+const favoritesApp = spawnNode('favorites-app/application.js', 'Favorites App', BRIGHT_YELLOW)
 const colorsServer = spawnNode(
     'colors-resource/resources-server.js',
     'Colors Server',
@@ -32,7 +32,7 @@ const languagesServer = spawnNode(
 )
 
 favoritesApp.on('close', (code) => {
-    colorLog(`\n❌ Favorites App exited with code ${code}`, BRIGHT_BLUE)
+    colorLog(`\n❌ Favorites App exited with code ${code}`, BRIGHT_YELLOW)
     process.exit(code)
 })
 
