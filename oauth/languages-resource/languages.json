@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "name": "JavaScript",
+    "year": 1995,
+    "paradigm": "Multi-paradigm",
+    "description": "The language of the web, running everywhere from browsers to servers"
+  },
+  {
+    "id": 2,
+    "name": "Python",
+    "year": 1991,
+    "paradigm": "Multi-paradigm",
+    "description": "Elegant and readable, beloved for data science, AI, and scripting"
+  },
+  {
+    "id": 3,
+    "name": "Rust",
+    "year": 2010,
+    "paradigm": "Multi-paradigm",
+    "description": "Blazingly fast and memory-safe without a garbage collector"
+  },
+  {
+    "id": 4,
+    "name": "Go",
+    "year": 2009,
+    "paradigm": "Concurrent, imperative",
+    "description": "Simple, fast, and built for modern cloud infrastructure"
+  },
+  {
+    "id": 5,
+    "name": "TypeScript",
+    "year": 2012,
+    "paradigm": "Multi-paradigm",
+    "description": "JavaScript with static types, bringing structure to large codebases"
+  }
+]
