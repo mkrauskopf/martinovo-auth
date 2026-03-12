@@ -8,6 +8,7 @@ const { constructAuthorizeURL } = require('../lib/authorize')
 const { generatePKCE } = require('../pkce')
 const { dashboardTemplate } = require('./dashboard-template')
 const { loadFavoriteColorsHtml } = require('./colors-fetcher')
+const { loadFavoriteLanguagesHtml } = require('./languages-fetcher')
 const { requireAccessToken, GrantType } = require('../lib/access-token')
 
 const app = express()
@@ -127,19 +128,26 @@ app.get('/oauth2/callback', async (req, res) => {
 // A protected route example
 app.get('/dashboard', async (req, res) => {
     console.debug('GET /dashboard')
-    // TODO: process 'scope' into array and check properly
-    if (req.session.encodedAccessToken && req.session.scope.includes('read:colors')) {
-        console.debug('Having access token.')
-
-        const favoriteColorsHtml = await loadFavoriteColorsHtml(req.session.encodedAccessToken)
-        const dashboardHtml = dashboardTemplate(favoriteColorsHtml, req.session.accessToken)
-
-        res.send(dashboardHtml)
-    } else {
+    if (!req.session.encodedAccessToken) {
         console.debug('NOT having access token.')
-        // TODO: show 'no access' info in the browser
         res.redirect('/')
+        return
     }
+
+    console.debug('Having access token.')
+    const scope = req.session.scope || ''
+
+    const [colorsHtml, languagesHtml] = await Promise.all([
+        scope.includes('read:colors')
+            ? loadFavoriteColorsHtml(req.session.encodedAccessToken)
+            : Promise.resolve(''),
+        scope.includes('read:languages')
+            ? loadFavoriteLanguagesHtml(req.session.encodedAccessToken)
+            : Promise.resolve(''),
+    ])
+
+    const dashboardHtml = dashboardTemplate(colorsHtml + languagesHtml, req.session.accessToken)
+    res.send(dashboardHtml)
 })
 
 app.get('/logout', (req, res) => {
