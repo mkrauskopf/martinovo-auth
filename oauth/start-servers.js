@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 const { spawn } = require('child_process')
-const { colorLog, BRIGHT_BLUE, BRIGHT_GREEN } = require('./colors')
+const { colorLog, BRIGHT_BLUE, BRIGHT_GREEN, BRIGHT_MAGENTA } = require('./colors')
 
-console.log('🚀 Starting OAuth Application and Resources Server...\n')
+console.log('🚀 Starting OAuth Application and Resource Servers...\n')
 
 spawnNode = (scriptPath, appName, color) => {
     const app = spawn('node', [scriptPath], {
@@ -20,10 +20,15 @@ spawnNode = (scriptPath, appName, color) => {
 }
 
 const favoritesApp = spawnNode('favorites-app/application.js', 'Favorites App', BRIGHT_BLUE)
-const resourcesServer = spawnNode(
+const colorsServer = spawnNode(
     'colors-resource/resources-server.js',
-    'Resources Server',
+    'Colors Server',
     BRIGHT_GREEN,
+)
+const languagesServer = spawnNode(
+    'languages-resource/resources-server.js',
+    'Languages Server',
+    BRIGHT_MAGENTA,
 )
 
 favoritesApp.on('close', (code) => {
@@ -31,8 +36,13 @@ favoritesApp.on('close', (code) => {
     process.exit(code)
 })
 
-resourcesServer.on('close', (code) => {
-    colorLog(`\n❌ Resources Server exited with code ${code}`, BRIGHT_GREEN)
+colorsServer.on('close', (code) => {
+    colorLog(`\n❌ Colors Server exited with code ${code}`, BRIGHT_GREEN)
+    process.exit(code)
+})
+
+languagesServer.on('close', (code) => {
+    colorLog(`\n❌ Languages Server exited with code ${code}`, BRIGHT_MAGENTA)
     process.exit(code)
 })
 
@@ -40,16 +50,18 @@ resourcesServer.on('close', (code) => {
 process.on('SIGINT', () => {
     console.log('\n🛑 Shutting down servers...')
     favoritesApp.kill('SIGINT')
-    resourcesServer.kill('SIGINT')
+    colorsServer.kill('SIGINT')
+    languagesServer.kill('SIGINT')
     setTimeout(() => {
         process.exit(0)
     }, 1000)
 })
 
-console.log('📝 Both servers are starting up...')
+console.log('📝 All servers are starting up...')
 console.log('🌐 OAuth Application: http://localhost:3000')
-console.log('🔒 Resources Server: http://localhost:3001')
-console.log('📊 Dashboard with favorite colors: http://localhost:3000/dashboard')
+console.log('🔒 Colors Resource Server: http://localhost:3001')
+console.log('🔒 Languages Resource Server: http://localhost:3002')
+console.log('📊 Dashboard: http://localhost:3000/dashboard')
 console.log('\n💡 To test the integration:')
 console.log('   1. Visit http://localhost:3000/login_duo to authenticate')
 console.log("   2. After login, you'll be redirected to the dashboard")
