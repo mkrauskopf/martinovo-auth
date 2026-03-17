@@ -9,6 +9,7 @@ const { generatePKCE } = require('../pkce')
 const { dashboardTemplate } = require('./dashboard-template')
 const { loadFavoriteColorsHtml } = require('./colors-fetcher')
 const { loadFavoriteLanguagesHtml } = require('./languages-fetcher')
+const { loadLibrariesHtml } = require('./libraries-fetcher')
 const { requireAccessToken, GrantType } = require('../lib/access-token')
 
 const app = express()
@@ -148,6 +149,16 @@ app.get('/dashboard', async (req, res) => {
 
     const dashboardHtml = dashboardTemplate(colorsHtml + languagesHtml, req.session.accessToken)
     res.send(dashboardHtml)
+})
+
+app.get('/libraries/:languageName', async (req, res) => {
+    if (!req.session.encodedAccessToken) {
+        return res.status(401).send('Not authenticated')
+    }
+
+    const languageName = req.params.languageName
+    const html = await loadLibrariesHtml(req.session.encodedAccessToken, languageName)
+    res.send(html)
 })
 
 app.get('/logout', (req, res) => {
