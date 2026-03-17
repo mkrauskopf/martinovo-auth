@@ -4,6 +4,7 @@ require('../init')
 const express = require('express')
 const { createRemoteJWKSet, jwtVerify, errors: joseErrors } = require('jose')
 const { discover } = require('../lib/discovery')
+const { requireAccessToken, GrantType } = require('../lib/access-token')
 const favoriteLanguages = require('./languages.json')
 
 const app = express()
@@ -84,6 +85,31 @@ const validateAccessToken = async (req, res, next) => {
     }
 }
 
+let librariesAccessToken = null
+let librariesTokenExpiresAt = 0
+
+async function getLibrariesAccessToken() {
+    if (librariesAccessToken && Date.now() < librariesTokenExpiresAt) {
+        return librariesAccessToken
+    }
+
+    const discoveryURL = process.env.OAUTH2_DISCOVERY_URL
+    const metadata = await discover(discoveryURL)
+
+    const tokenResponse = await requireAccessToken({
+        tokenEndpoint: metadata.token_endpoint,
+        grantType: GrantType.CLIENT_CREDENTIALS,
+        clientId: process.env.OAUTH2_LIBRARIES_CLIENT_ID,
+        clientSecret: process.env.OAUTH2_LIBRARIES_CLIENT_SECRET,
+        scope: process.env.OAUTH2_LIBRARIES_SCOPE,
+    })
+
+    librariesAccessToken = tokenResponse.access_token
+    librariesTokenExpiresAt = Date.now() + (tokenResponse.expires_in - 60) * 1000
+    console.info('Obtained client credentials token for libraries-resource server')
+    return librariesAccessToken
+}
+
 // Protected endpoint: /favorite-languages
 app.get('/favorite-languages', validateAccessToken, (req, res) => {
     console.log('GET /favorite-languages - Protected endpoint accessed')
@@ -94,6 +120,33 @@ app.get('/favorite-languages', validateAccessToken, (req, res) => {
         timestamp: new Date().toISOString(),
         requestedBy: req.tokenInfo.client_id,
     })
+})
+
+// Protected endpoint: /favorite-languages/:name/libraries (proxy to libraries-resource)
+app.get('/favorite-languages/:name/libraries', validateAccessToken, async (req, res) => {
+    const languageName = req.params.name
+    console.log(`GET /favorite-languages/${languageName}/libraries - Proxying to libraries-resource`)
+
+    try {
+        const token = await getLibrariesAccessToken()
+        const librariesServerUrl = process.env.OAUTH2_LIBRARIES_SERVER_URL || 'http://localhost:3003'
+        const response = await fetch(`${librariesServerUrl}/libraries/${encodeURIComponent(languageName)}`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        })
+
+        const data = await response.json()
+        res.status(response.status).json(data)
+    } catch (error) {
+        console.error(`Error proxying libraries request for ${languageName}:`, error)
+        res.status(502).json({
+            error: 'bad_gateway',
+            error_description: 'Failed to fetch libraries from libraries-resource server',
+        })
+    }
 })
 
 // Health check endpoint (unprotected)
