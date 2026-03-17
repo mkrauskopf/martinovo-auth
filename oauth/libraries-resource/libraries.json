@@ -1,0 +1,7 @@
+{
+  "JavaScript": ["React", "Express", "Next.js", "Vue.js", "Lodash"],
+  "Python": ["Django", "Flask", "NumPy", "Pandas", "FastAPI"],
+  "Rust": ["Tokio", "Serde", "Actix-web", "Clap", "Reqwest"],
+  "Go": ["Gin", "Echo", "Cobra", "GORM", "Fiber"],
+  "TypeScript": ["Zod", "tRPC", "Prisma", "NestJS", "TypeORM"]
+}
