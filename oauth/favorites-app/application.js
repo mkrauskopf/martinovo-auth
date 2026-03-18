@@ -42,6 +42,7 @@ app.get('/login_duo', (req, res) => {
         authorizationEndpoint: process.env.OAUTH2_AUTHORIZE_URL,
         clientId: process.env.OAUTH2_CLIENT_ID,
         redirectURI: process.env.OAUTH2_REDIRECT_URI,
+        resource: process.env.OAUTH2_RESOURCE?.split(','),
         scope: process.env.OAUTH2_SCOPE,
         withPKCE: true,
         codeChallenge,
@@ -97,6 +98,7 @@ app.get('/oauth2/callback', async (req, res) => {
             redirectURI: process.env.OAUTH2_REDIRECT_URI,
             withPKCE: true,
             codeVerifier,
+            resource: process.env.OAUTH2_RESOURCE?.split(','),
         })
 
         console.debug('Successfully exchanged code for tokens!')

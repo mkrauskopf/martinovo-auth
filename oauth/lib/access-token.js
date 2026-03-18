@@ -15,37 +15,41 @@ async function requireAccessToken({
     redirectURI,
     withPKCE = false,
     codeVerifier,
+    resource,
 }) {
     const authorizationHeader = `${clientId}:${clientSecret}`
     const headers = {
         Authorization: `Basic ${Buffer.from(authorizationHeader).toString('base64')}`,
         'Content-Type': 'application/x-www-form-urlencoded',
     }
-    const body = {
-        grant_type: grantType,
-    }
+    const params = new URLSearchParams()
+    params.append('grant_type', grantType)
     if (grantType === GrantType.CLIENT_CREDENTIALS) {
-        body.scope = scope
+        params.append('scope', scope)
     } else if (grantType === GrantType.AUTHORIZATION_CODE) {
-        body.code = authorizationCode
-        body.redirect_uri = redirectURI
+        params.append('code', authorizationCode)
+        params.append('redirect_uri', redirectURI)
         if (withPKCE) {
-            body.code_verifier = codeVerifier
+            params.append('code_verifier', codeVerifier)
         }
-        body.resource = "http://localhost:3001/favorite-trees"
     } else {
         throw Error(`Unknown grant type: ${grantType}`)
+    }
+    // RFC 8707: resource parameter can appear multiple times to request a multi-audience token
+    const resources = Array.isArray(resource) ? resource : resource ? [resource] : []
+    for (const r of resources) {
+        params.append('resource', r)
     }
 
     console.info(`POST ${tokenEndpoint}`)
     console.info('\nHeaders:\n', headers)
-    console.info('\nBody:\n', body)
+    console.info('\nBody:\n', [...params.entries()])
 
     try {
         const response = await fetch(tokenEndpoint, {
             method: 'POST',
             headers,
-            body: new URLSearchParams(body),
+            body: params,
         })
 
         const tokenData = await response.json()

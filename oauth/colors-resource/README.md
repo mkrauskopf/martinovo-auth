@@ -35,10 +35,18 @@ The `validateAccessToken` middleware:
 - Returns `401 Unauthorized` if the header is missing, malformed, or the token is empty
 - Stores token info in the request for use by downstream handlers
 
-### Token Validation (Stub)
+### Token Validation
 
-Currently, any non-empty token is accepted. JWT signature verification and introspection using OAuth server endpoint 
-are to be implemented.
+The `validateAccessToken` middleware verifies the JWT access token using the `jose` library:
+
+- **Signature** — verified against the AS's JWKS (fetched via OAuth discovery)
+- **Issuer (`iss`)** — must match the AS issuer from discovery metadata
+- **Audience (`aud`)** — must match this RS's `OAUTH2_AUDIENCE` value (mandatory; prevents token confusion
+  between Resource Servers)
+- **Algorithm** — must be `RS256`
+- **Expiration (`exp`)** — checked automatically by `jose`
+
+The server refuses to start if `OAUTH2_AUDIENCE` is not configured.
 
 ### Static Resource Data
 
@@ -86,8 +94,11 @@ Expected response:
 ### Access protected endpoint with Bearer token (expect 200)
 
 ```bash
-curl -H "Authorization: Bearer anytoken" http://localhost:3001/favorite-colors
+curl -H "Authorization: Bearer <valid-jwt>" http://localhost:3001/favorite-colors
 ```
+
+Replace `<valid-jwt>` with a token obtained from the Duo AS (e.g. via the Favorites App login flow).
+The token must have `aud` matching `http://localhost:3001`.
 
 Expected response:
 ```json

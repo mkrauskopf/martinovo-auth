@@ -19,12 +19,16 @@ async function initializeJwks() {
     if (!discoveryURL) {
         throw new Error('OAUTH2_DISCOVERY_URL environment variable is not set')
     }
+    if (!process.env.OAUTH2_AUDIENCE) {
+        throw new Error('OAUTH2_AUDIENCE environment variable is not set')
+    }
     console.info(`Resource Server: discovering OAuth metadata from ${discoveryURL}`)
     const metadata = await discover(discoveryURL)
     expectedIssuer = metadata.issuer
     jwks = createRemoteJWKSet(new URL(metadata.jwks_uri))
     console.info(`Resource Server: JWKS initialized`)
     console.info(`  issuer:   ${expectedIssuer}`)
+    console.info(`  audience: ${process.env.OAUTH2_AUDIENCE}`)
     console.info(`  jwks_uri: ${metadata.jwks_uri}`)
 }
 
@@ -53,9 +57,7 @@ const validateAccessToken = async (req, res, next) => {
     }
 
     try {
-        const verifyOptions = { issuer: expectedIssuer, algorithms: ['RS256'] }
-        const audience = process.env.OAUTH2_AUDIENCE
-        if (audience) verifyOptions.audience = audience
+        const verifyOptions = { issuer: expectedIssuer, audience: process.env.OAUTH2_AUDIENCE, algorithms: ['RS256'] }
 
         const { payload } = await jwtVerify(token, jwks, verifyOptions)
 

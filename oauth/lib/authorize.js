@@ -11,21 +11,24 @@ function constructAuthorizeURL({
     state,
 }) {
     const url = new URL(authorizationEndpoint)
-    const searchParams = {
-        response_type: 'code',
-        client_id: clientId,
-        redirect_uri: redirectURI,
-        resource: "http://localhost:3001/favorite-trees",
-        scope,
-        state,
+    const params = new URLSearchParams()
+    params.append('response_type', 'code')
+    params.append('client_id', clientId)
+    params.append('redirect_uri', redirectURI)
+    // RFC 8707: resource parameter can appear multiple times to request a multi-audience token
+    const resources = Array.isArray(resource) ? resource : resource ? [resource] : []
+    for (const r of resources) {
+        params.append('resource', r)
     }
+    if (scope) params.append('scope', scope)
+    if (state) params.append('state', state)
     if (withPKCE) {
-        searchParams.code_challenge = codeChallenge
-        searchParams.code_challenge_method = 'S256'
+        params.append('code_challenge', codeChallenge)
+        params.append('code_challenge_method', 'S256')
     }
-    url.search = new URLSearchParams(searchParams).toString()
+    url.search = params.toString()
     console.info(`Constructed authorization URL: ${url}`)
-    console.debug('Authorization URL parameters:', searchParams)
+    console.debug('Authorization URL parameters:', [...params.entries()])
     return url.toString()
 }
 
