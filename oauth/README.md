@@ -2,6 +2,34 @@
 
 Playground for all kinds of OAuth specifications.
 
+## What's Inside
+
+This directory contains a working OAuth demo with multiple cooperating services:
+
+- **`favorites-app/`** — Client application (`:3000`) that users interact with. Authenticates via Authorization
+  Code + PKCE flow and displays the user's favorite colors, languages, and libraries.
+- **`colors-resource/`** — Resource server (`:3001`) serving color data, protected by `read:colors` scope.
+- **`languages-resource/`** — Resource server (`:3002`) serving per-user language data, protected by
+  `read:languages` scope. Filters results based on the JWT `sub` claim.
+- **`libraries-resource/`** — Resource server (`:3003`) serving library data, called by the Languages RS using
+  a Client Credentials grant (machine-to-machine).
+- **`start-servers.js`** — Starts all three resource servers and the client app together.
+
+## Running
+
+Install dependencies and start all servers with a single command:
+
+```bash
+npm install
+node start-servers.js
+```
+
+This launches the Favorites App and all three resource servers. Once running, visit
+[http://localhost:3000/login_duo](http://localhost:3000/login_duo) to authenticate. After login you will be
+redirected to the [dashboard](http://localhost:3000/dashboard) displaying your favorites.
+
+Press `Ctrl+C` to stop all servers.
+
 ## Architecture
 
 ```mermaid
