@@ -1,5 +1,6 @@
 /.idea/
 /.DS_Store
 **/.env
+**/user-languages.json
 node_modules/
 /.claude/*local*

@@ -6,6 +6,7 @@ const { createRemoteJWKSet, jwtVerify, errors: joseErrors } = require('jose')
 const { discover } = require('../lib/discovery')
 const { requireAccessToken, GrantType } = require('../lib/access-token')
 const favoriteLanguages = require('./languages.json')
+const userLanguages = require('./user-languages.json')
 
 const app = express()
 const port = 3002
@@ -112,20 +113,48 @@ async function getLibrariesAccessToken() {
 
 // Protected endpoint: /favorite-languages
 app.get('/favorite-languages', validateAccessToken, (req, res) => {
-    console.log('GET /favorite-languages - Protected endpoint accessed')
+    const sub = req.tokenInfo.sub
+    console.log(`GET /favorite-languages - Protected endpoint accessed by sub=${sub}`)
+
+    const allowedIds = userLanguages[sub]
+    if (!allowedIds) {
+        return res.status(403).json({
+            error: 'forbidden',
+            error_description: `No language mapping found for user ${sub}`,
+        })
+    }
+
+    const filtered = favoriteLanguages.filter((lang) => allowedIds.includes(lang.id))
 
     res.json({
         message: 'Successfully retrieved favorite languages',
-        data: favoriteLanguages,
+        data: filtered,
         timestamp: new Date().toISOString(),
-        requestedBy: req.tokenInfo.client_id,
+        requestedBy: sub,
     })
 })
 
 // Protected endpoint: /favorite-languages/:name/libraries (proxy to libraries-resource)
 app.get('/favorite-languages/:name/libraries', validateAccessToken, async (req, res) => {
     const languageName = req.params.name
-    console.log(`GET /favorite-languages/${languageName}/libraries - Proxying to libraries-resource`)
+    const sub = req.tokenInfo.sub
+    console.log(`GET /favorite-languages/${languageName}/libraries - Proxying to libraries-resource for sub=${sub}`)
+
+    const allowedIds = userLanguages[sub]
+    if (!allowedIds) {
+        return res.status(403).json({
+            error: 'forbidden',
+            error_description: `No language mapping found for user ${sub}`,
+        })
+    }
+
+    const requestedLang = favoriteLanguages.find((lang) => lang.name.toLowerCase() === languageName.toLowerCase())
+    if (!requestedLang || !allowedIds.includes(requestedLang.id)) {
+        return res.status(403).json({
+            error: 'forbidden',
+            error_description: `User ${sub} does not have access to language "${languageName}"`,
+        })
+    }
 
     try {
         const token = await getLibrariesAccessToken()
