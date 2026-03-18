@@ -1,4 +1,8 @@
-# Architecture
+# The OAuth Playground
+
+Playground for all kinds of OAuth specifications.
+
+## Architecture
 
 ```mermaid
 graph TB
