@@ -6,4 +6,4 @@ Planning
 
 * It’s OK to ask me more than three questions! I’ll answer as many questions as you have. I’d rather get the plan right
   from the start!
-* When planning, store the plan as a Markdown file in the .claude/local/plan/ directory.
+* When planning, store the plan as a Markdown file in the `.claude/local/plan/` directory.
