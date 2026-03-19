@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-03-19
+
+- Personalities Resource Server (port 3004) — a protected API for famous-people data per language, with per-user
+  filtering.
+- Token Exchange grant type (RFC 8693) support in the shared access-token library.
+- Languages RS calls Personalities RS via Token Exchange, preserving the user's identity (`sub`) through the
+  RS-to-RS call — unlike the Libraries RS call which uses Client Credentials (no user context).
+- Favorites App shows both libraries and personalities when clicking a language tile.
+- Standalone Token Exchange grant script for CLI testing.
+
 ## 2026-03-18
 
 - Mandatory audience (`aud`) validation in all Resource Servers. Each RS requires `OAUTH2_AUDIENCE` and rejects
