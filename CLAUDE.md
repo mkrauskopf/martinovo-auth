@@ -6,7 +6,9 @@
 
 * It’s OK to ask me more than three questions! I’ll answer as many questions as you have. I’d rather get the plan right
   from the start!
-* When planning, store the plan as a Markdown file in the `.claude/local/plan/` directory.
+* When planning, store the plan as a Markdown file in the `.claude/local/plan/` directory. Prepend output Markdown
+  filenames with a date prefix in `YYYY-MM-DD` format (e.g., `2026-02-09-libraries-resource-server`).
+
 
 # Git
 
