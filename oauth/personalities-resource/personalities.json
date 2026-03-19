@@ -1,0 +1,37 @@
+{
+  "JavaScript": [
+    "Brendan Eich",
+    "Douglas Crockford",
+    "Ryan Dahl",
+    "Dan Abramov",
+    "Addy Osmani"
+  ],
+  "Python": [
+    "Guido van Rossum",
+    "Raymond Hettinger",
+    "David Beazley",
+    "Kenneth Reitz",
+    "Wes McKinney"
+  ],
+  "Rust": [
+    "Graydon Hoare",
+    "Steve Klabnik",
+    "Carol Nichols",
+    "Niko Matsakis",
+    "Ashley Williams"
+  ],
+  "Go": [
+    "Rob Pike",
+    "Ken Thompson",
+    "Robert Griesemer",
+    "Russ Cox",
+    "Brad Fitzpatrick"
+  ],
+  "TypeScript": [
+    "Anders Hejlsberg",
+    "Ryan Cavanaugh",
+    "Daniel Rosenwasser",
+    "Matt Pocock",
+    "Orta Therox"
+  ]
+}
