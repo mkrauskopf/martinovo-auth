@@ -114,6 +114,25 @@ async function getLibrariesAccessToken() {
     return librariesAccessToken
 }
 
+async function getPersonalitiesAccessToken(subjectToken) {
+    const discoveryURL = process.env.OAUTH2_DISCOVERY_URL
+    const metadata = await discover(discoveryURL)
+
+    const tokenResponse = await requireAccessToken({
+        tokenEndpoint: metadata.token_endpoint,
+        grantType: GrantType.TOKEN_EXCHANGE,
+        clientId: process.env.OAUTH2_PERSONALITIES_CLIENT_ID,
+        clientSecret: process.env.OAUTH2_PERSONALITIES_CLIENT_SECRET,
+        subjectToken,
+        subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+        audience: process.env.OAUTH2_PERSONALITIES_SERVER_URL,
+        scope: process.env.OAUTH2_PERSONALITIES_SCOPE,
+    })
+
+    console.info('Obtained token-exchange token for personalities-resource server')
+    return tokenResponse.access_token
+}
+
 // Protected endpoint: /favorite-languages
 app.get('/favorite-languages', validateAccessToken, (req, res) => {
     const sub = req.tokenInfo.sub
@@ -177,6 +196,55 @@ app.get('/favorite-languages/:name/libraries', validateAccessToken, async (req, 
         res.status(502).json({
             error: 'bad_gateway',
             error_description: 'Failed to fetch libraries from libraries-resource server',
+        })
+    }
+})
+
+// Protected endpoint: /favorite-languages/:name/personalities (proxy to personalities-resource via Token Exchange)
+app.get('/favorite-languages/:name/personalities', validateAccessToken, async (req, res) => {
+    const languageName = req.params.name
+    const sub = req.tokenInfo.sub
+    console.log(
+        `GET /favorite-languages/${languageName}/personalities - Proxying to personalities-resource for sub=${sub}`,
+    )
+
+    const allowedIds = userLanguages[sub]
+    if (!allowedIds) {
+        return res.status(403).json({
+            error: 'forbidden',
+            error_description: `No language mapping found for user ${sub}`,
+        })
+    }
+
+    const requestedLang = favoriteLanguages.find((lang) => lang.name.toLowerCase() === languageName.toLowerCase())
+    if (!requestedLang || !allowedIds.includes(requestedLang.id)) {
+        return res.status(403).json({
+            error: 'forbidden',
+            error_description: `User ${sub} does not have access to language "${languageName}"`,
+        })
+    }
+
+    try {
+        const token = await getPersonalitiesAccessToken(req.accessToken)
+        const personalitiesServerUrl = process.env.OAUTH2_PERSONALITIES_SERVER_URL || 'http://localhost:3004'
+        const response = await fetch(
+            `${personalitiesServerUrl}/personalities/${encodeURIComponent(languageName)}`,
+            {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            },
+        )
+
+        const data = await response.json()
+        res.status(response.status).json(data)
+    } catch (error) {
+        console.error(`Error proxying personalities request for ${languageName}:`, error)
+        res.status(502).json({
+            error: 'bad_gateway',
+            error_description: 'Failed to fetch personalities from personalities-resource server',
         })
     }
 })

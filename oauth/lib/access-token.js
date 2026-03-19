@@ -3,6 +3,7 @@ const { discover } = require('./discovery')
 const GrantType = Object.freeze({
     AUTHORIZATION_CODE: 'authorization_code',
     CLIENT_CREDENTIALS: 'client_credentials',
+    TOKEN_EXCHANGE: 'urn:ietf:params:oauth:grant-type:token-exchange',
 })
 
 async function requireAccessToken({
@@ -16,6 +17,9 @@ async function requireAccessToken({
     withPKCE = false,
     codeVerifier,
     resource,
+    subjectToken,
+    subjectTokenType,
+    audience,
 }) {
     const authorizationHeader = `${clientId}:${clientSecret}`
     const headers = {
@@ -31,6 +35,15 @@ async function requireAccessToken({
         params.append('redirect_uri', redirectURI)
         if (withPKCE) {
             params.append('code_verifier', codeVerifier)
+        }
+    } else if (grantType === GrantType.TOKEN_EXCHANGE) {
+        params.append('subject_token', subjectToken)
+        params.append('subject_token_type', subjectTokenType)
+        if (audience) {
+            params.append('audience', audience)
+        }
+        if (scope) {
+            params.append('scope', scope)
         }
     } else {
         throw Error(`Unknown grant type: ${grantType}`)
