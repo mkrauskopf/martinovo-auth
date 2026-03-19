@@ -10,6 +10,7 @@ const { dashboardTemplate } = require('./dashboard-template')
 const { loadFavoriteColorsHtml } = require('./colors-fetcher')
 const { loadFavoriteLanguagesHtml } = require('./languages-fetcher')
 const { loadLibrariesHtml } = require('./libraries-fetcher')
+const { loadPersonalitiesHtml } = require('./personalities-fetcher')
 const { requireAccessToken, GrantType } = require('../lib/access-token')
 
 const app = express()
@@ -160,6 +161,16 @@ app.get('/libraries/:languageName', async (req, res) => {
 
     const languageName = req.params.languageName
     const html = await loadLibrariesHtml(req.session.encodedAccessToken, languageName)
+    res.send(html)
+})
+
+app.get('/personalities/:languageName', async (req, res) => {
+    if (!req.session.encodedAccessToken) {
+        return res.status(401).send('Not authenticated')
+    }
+
+    const languageName = req.params.languageName
+    const html = await loadPersonalitiesHtml(req.session.encodedAccessToken, languageName)
     res.send(html)
 })
 

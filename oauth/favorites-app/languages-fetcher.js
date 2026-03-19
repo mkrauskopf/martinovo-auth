@@ -28,7 +28,7 @@ async function loadFavoriteLanguagesHtml(accessToken) {
                                         <p style="color: #666; font-size: 12px; margin: 5px 0;">Since ${lang.year}</p>
                                         <p style="color: #888; font-size: 11px; margin: 5px 0;">${lang.paradigm}</p>
                                         <p style="color: #888; font-size: 11px; font-style: italic;">${lang.description}</p>
-                                        <p style="color: #1976d2; font-size: 11px; margin-top: 8px;">Click to see libraries</p>
+                                        <p style="color: #1976d2; font-size: 11px; margin-top: 8px;">Click to see libraries &amp; personalities</p>
                                     </div>
                                 `,
                             )
@@ -56,14 +56,20 @@ async function loadFavoriteLanguagesHtml(accessToken) {
                             const overlay = document.getElementById('libraries-dialog-overlay');
                             const content = document.getElementById('libraries-dialog-content');
                             const title = document.getElementById('libraries-dialog-title');
-                            title.textContent = languageName + ' Libraries';
+                            title.textContent = languageName;
                             content.innerHTML = '<p>Loading...</p>';
                             overlay.style.display = 'flex';
                             try {
-                                const resp = await fetch('/libraries/' + encodeURIComponent(languageName));
-                                content.innerHTML = await resp.text();
+                                const encoded = encodeURIComponent(languageName);
+                                const [libResp, persResp] = await Promise.all([
+                                    fetch('/libraries/' + encoded),
+                                    fetch('/personalities/' + encoded),
+                                ]);
+                                const libHtml = await libResp.text();
+                                const persHtml = await persResp.text();
+                                content.innerHTML = libHtml + persHtml;
                             } catch (e) {
-                                content.innerHTML = '<p style="color:#d32f2f;">Failed to load libraries.</p>';
+                                content.innerHTML = '<p style="color:#d32f2f;">Failed to load details.</p>';
                             }
                         }
                         function closeLibrariesDialog() {
