@@ -11,3 +11,14 @@
 # Git
 
 * When committing to the Git repository and changes are not trivial, consider updating the Changelog.
+
+# OAuth Terminology
+
+When the user speaks about OAuth, OIDC, and related extensions, they might use the following abbreviations:
+
+* **AS**: Authorization Server
+* **RS**: Resource Server
+* **AT**: Access Token
+* **ET**: Exchange Token
+* **AC GT**: Authorization Code grant type
+* **CC GT**: Client Credentials grant type
