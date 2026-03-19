@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { spawn } = require('child_process')
-const { colorLog, BRIGHT_YELLOW, BRIGHT_GREEN, BRIGHT_MAGENTA, BRIGHT_CYAN } = require('./colors')
+const { colorLog, BRIGHT_YELLOW, BRIGHT_GREEN, BRIGHT_MAGENTA, BRIGHT_CYAN, BRIGHT_BLUE } = require('./colors')
 
 console.log('🚀 Starting OAuth Application and Resource Servers...\n')
 
@@ -35,6 +35,11 @@ const librariesServer = spawnNode(
     'Libraries Server',
     BRIGHT_CYAN,
 )
+const personalitiesServer = spawnNode(
+    'personalities-resource/resources-server.js',
+    'Personalities Server',
+    BRIGHT_BLUE,
+)
 
 favoritesApp.on('close', (code) => {
     colorLog(`\n❌ Favorites App exited with code ${code}`, BRIGHT_YELLOW)
@@ -56,6 +61,11 @@ librariesServer.on('close', (code) => {
     process.exit(code)
 })
 
+personalitiesServer.on('close', (code) => {
+    colorLog(`\n❌ Personalities Server exited with code ${code}`, BRIGHT_BLUE)
+    process.exit(code)
+})
+
 // Handle Ctrl+C gracefully
 process.on('SIGINT', () => {
     console.log('\n🛑 Shutting down servers...')
@@ -63,6 +73,7 @@ process.on('SIGINT', () => {
     colorsServer.kill('SIGINT')
     languagesServer.kill('SIGINT')
     librariesServer.kill('SIGINT')
+    personalitiesServer.kill('SIGINT')
     setTimeout(() => {
         process.exit(0)
     }, 1000)
@@ -73,6 +84,7 @@ console.log('🌐 OAuth Application: http://localhost:3000')
 console.log('🔒 Colors Resource Server: http://localhost:3001')
 console.log('🔒 Languages Resource Server: http://localhost:3002')
 console.log('🔒 Libraries Resource Server: http://localhost:3003')
+console.log('🔒 Personalities Resource Server: http://localhost:3004')
 console.log('📊 Dashboard: http://localhost:3000/dashboard')
 console.log('\n💡 To test the integration:')
 console.log('   1. Visit http://localhost:3000/login_duo to authenticate')
