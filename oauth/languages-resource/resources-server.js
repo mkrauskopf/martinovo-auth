@@ -114,6 +114,10 @@ async function getLibrariesAccessToken() {
     return librariesAccessToken
 }
 
+const tokenExchangeConfigured = !!(
+    process.env.OAUTH2_PERSONALITIES_CLIENT_ID && process.env.OAUTH2_PERSONALITIES_CLIENT_SECRET
+)
+
 async function getPersonalitiesAccessToken(subjectToken) {
     const discoveryURL = process.env.OAUTH2_DISCOVERY_URL
     const metadata = await discover(discoveryURL)
@@ -202,6 +206,13 @@ app.get('/favorite-languages/:name/libraries', validateAccessToken, async (req, 
 
 // Protected endpoint: /favorite-languages/:name/personalities (proxy to personalities-resource via Token Exchange)
 app.get('/favorite-languages/:name/personalities', validateAccessToken, async (req, res) => {
+    if (!tokenExchangeConfigured) {
+        return res.status(501).json({
+            error: 'not_configured',
+            error_description: 'Token Exchange is not configured (missing OAUTH2_PERSONALITIES_CLIENT_ID/SECRET)',
+        })
+    }
+
     const languageName = req.params.name
     const sub = req.tokenInfo.sub
     console.log(
@@ -286,6 +297,9 @@ initializeJwks()
             console.info(`Languages Resource Server running at http://localhost:${port}`)
             console.info(`Protected endpoint: http://localhost:${port}/favorite-languages`)
             console.info(`Health check: http://localhost:${port}/health`)
+            if (!tokenExchangeConfigured) {
+                console.warn('⚠️  Token Exchange not configured — personalities endpoint disabled')
+            }
         })
     })
     .catch((err) => {

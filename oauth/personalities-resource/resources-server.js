@@ -150,6 +150,19 @@ app.use((err, req, res, _next) => {
     })
 })
 
+const configured = !!(
+    process.env.OAUTH2_DISCOVERY_URL
+    && process.env.OAUTH2_AUDIENCE
+    && process.env.OAUTH2_CLIENT_ID
+    && process.env.OAUTH2_CLIENT_SECRET
+)
+
+if (!configured) {
+    console.warn('⚠️  Personalities Resource Server not configured — skipping startup.')
+    console.warn('   Set OAUTH2_DISCOVERY_URL, OAUTH2_AUDIENCE, OAUTH2_CLIENT_ID, and OAUTH2_CLIENT_SECRET in .env')
+    process.exit(0)
+}
+
 initializeJwks()
     .then(() => {
         app.listen(port, () => {

@@ -62,8 +62,9 @@ librariesServer.on('close', (code) => {
 })
 
 personalitiesServer.on('close', (code) => {
-    colorLog(`\n❌ Personalities Server exited with code ${code}`, BRIGHT_BLUE)
-    process.exit(code)
+    if (code !== 0) {
+        colorLog(`\n⚠️  Personalities Server exited with code ${code} (Token Exchange not configured?)`, BRIGHT_BLUE)
+    }
 })
 
 // Handle Ctrl+C gracefully
