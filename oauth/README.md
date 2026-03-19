@@ -13,7 +13,10 @@ This directory contains a working OAuth demo with multiple cooperating services:
   `read:languages` scope. Filters results based on the JWT `sub` claim.
 - **`libraries-resource/`** — Resource server (`:3003`) serving library data, called by the Languages RS using
   a Client Credentials grant (machine-to-machine).
-- **`start-servers.js`** — Starts all three resource servers and the client app together.
+- **`personalities-resource/`** — Resource server (`:3004`) serving famous-people data per language, called by
+  the Languages RS using a Token Exchange grant (RFC 8693). Unlike Libraries RS, the user's identity (`sub`)
+  is preserved through the exchange, enabling per-user filtering.
+- **`start-servers.js`** — Starts all four resource servers and the client app together.
 
 ## Running
 
@@ -48,6 +51,7 @@ graph TB
         CR["Colors RS<br/>:3001"]
         LR["Languages RS<br/>:3002"]
         BR["Libraries RS<br/>:3003"]
+        PR["Personalities RS<br/>:3004"]
     end
 
     User -- "1. login redirect" --> AS
@@ -61,6 +65,9 @@ graph TB
 
     LR -- "client credentials token<br/>(read:libraries)" --> BR
     LR -. "obtains CC token" .-> AS
+
+    LR -- "exchanged token<br/>(read:personalities)" --> PR
+    LR -. "token exchange<br/>(RFC 8693)" .-> AS
 ```
 
 ## Per-User Resources
@@ -69,6 +76,11 @@ The Languages Resource Server (RS) returns only the languages mapped to the auth
 by the `sub` (subject) claim from the JWT access token — a registered claim defined in
 [RFC 7519 (JWT)](https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.2), not part of the core
 OAuth 2.0 specification itself.
+
+The Personalities RS also filters per user. Because the user does not call Personalities RS directly,
+the Languages RS uses [Token Exchange (RFC 8693)](https://datatracker.ietf.org/doc/html/rfc8693) to
+obtain a new access token for Personalities RS that preserves the original user's `sub` claim. This
+contrasts with the Libraries RS call, which uses Client Credentials (no user context).
 
 This approach works because our authorization server issues JWT access tokens that the RS can decode
 locally. With opaque tokens, the RS would need to call the authorization server's
@@ -95,3 +107,17 @@ and the language IDs you want that user to see:
 
 Language IDs reference the `id` field in `languages-resource/languages.json`. Users not present in
 the mapping receive a 403 Forbidden response.
+
+Similarly, copy and configure the personalities mapping:
+
+```bash
+cp personalities-resource/user-personalities.example.json personalities-resource/user-personalities.json
+```
+
+Map your `sub` to the person names you want to see (names must match `personalities.json` exactly):
+
+```json
+{
+  "<your-sub-value>": ["Brendan Eich", "Guido van Rossum", "Rob Pike"]
+}
+```
