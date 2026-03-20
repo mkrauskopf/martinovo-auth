@@ -8,6 +8,8 @@
 - Refresh Token grant type support in the shared access-token library.
 - Removed `read:libraries` and `read:personalities` from the client's requested scopes (those are RS-to-RS scopes,
   not client scopes).
+- Research docs: Token Narrowing (when and how to enforce single-audience ATs) and Refresh Token Rotation
+  (one-time vs reusable RTs, OAuth 2.1 defaults).
 
 ## 2026-03-19
 
