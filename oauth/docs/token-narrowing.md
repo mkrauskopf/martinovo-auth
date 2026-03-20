@@ -1,4 +1,4 @@
-# Token Narrowing: Who Enforces Single-Audience Access Tokens?
+# Token Narrowing: When and How to Enforce Single-Audience Access Tokens
 
 In OAuth 2.0 with RFC 8707 (Resource Indicators), a client application should present each Resource Server (RS)
 with an Access Token (AT) targeted exclusively to that RS — not a "big" multi-audience token. This is the principle
