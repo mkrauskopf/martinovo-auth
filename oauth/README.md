@@ -58,10 +58,11 @@ graph TB
     AS -- "2. authorization code<br/>(redirect back)" --> User
     User -- "3. code delivered<br/>via redirect" --> FA
     FA -- "4. exchange code for token<br/>(Authorization Code + PKCE)" --> AS
+    FA -. "5. narrow via Refresh Token<br/>(RFC 8707)" .-> AS
 
-    FA -- "access token<br/>(read:colors)" --> CR
-    FA -- "access token<br/>(read:languages)" --> LR
-    FA -- "access token<br/>(on tile click)" --> LR
+    FA -- "narrowed AT<br/>(read:colors, aud: :3001)" --> CR
+    FA -- "narrowed AT<br/>(read:languages, aud: :3002)" --> LR
+    FA -- "narrowed AT<br/>(on tile click)" --> LR
 
     LR -- "client credentials token<br/>(read:libraries)" --> BR
     LR -. "obtains CC token" .-> AS
