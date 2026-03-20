@@ -70,6 +70,21 @@ graph TB
     LR -. "token exchange<br/>(RFC 8693)" .-> AS
 ```
 
+## Token Narrowing (RFC 8707)
+
+The Favorites App requests authorization for both Colors RS and Languages RS in the initial Authorization Code
+flow (two `resource` parameter values). However, using a single multi-audience Access Token to call multiple
+Resource Servers is a security risk: if one RS leaks the token, it can be replayed against the other.
+
+To follow the **principle of least privilege**, the app immediately uses the Refresh Token to obtain two
+**dedicated, single-audience Access Tokens** — one per RS:
+
+- `read:colors` scoped to `http://localhost:3001` (Colors RS)
+- `read:languages` scoped to `http://localhost:3002` (Languages RS)
+
+Each RS then receives only a token intended exclusively for it. See [token-narrowing.md](docs/token-narrowing.md)
+for a deeper discussion of which OAuth party is responsible for enforcing this.
+
 ## Per-User Resources
 
 The Languages Resource Server (RS) returns only the languages mapped to the authenticated user. The user is identified

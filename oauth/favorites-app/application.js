@@ -118,6 +118,41 @@ app.get('/oauth2/callback', async (req, res) => {
         req.session.tokenExpiresAt = Date.now() + expiresIn * 1000 // Store expiry time
         req.session.scope = scope
 
+        // Token Narrowing (RFC 8707): use the Refresh Token to obtain dedicated, single-audience
+        // Access Tokens for each Resource Server. This prevents a token leaked from one RS from being
+        // replayed against another.
+        // Note: requests are sequential because the AS rotates the Refresh Token on each use (one-time RT).
+        // The first exchange returns a new RT that must be used for the second.
+        console.info('\n--- Token Narrowing via Refresh Token ---')
+        let currentRefreshToken = refreshToken
+
+        const colorsTokenData = await requireAccessToken({
+            tokenEndpoint: process.env.OAUTH2_TOKEN_URL,
+            grantType: GrantType.REFRESH_TOKEN,
+            clientId: process.env.OAUTH2_CLIENT_ID,
+            clientSecret: process.env.OAUTH2_CLIENT_SECRET,
+            refreshToken: currentRefreshToken,
+            resource: process.env.OAUTH2_COLORS_RESOURCE,
+            scope: 'read:colors',
+        })
+        req.session.colorsEncodedAccessToken = colorsTokenData.access_token
+        currentRefreshToken = colorsTokenData.refresh_token || currentRefreshToken
+
+        const languagesTokenData = await requireAccessToken({
+            tokenEndpoint: process.env.OAUTH2_TOKEN_URL,
+            grantType: GrantType.REFRESH_TOKEN,
+            clientId: process.env.OAUTH2_CLIENT_ID,
+            clientSecret: process.env.OAUTH2_CLIENT_SECRET,
+            refreshToken: currentRefreshToken,
+            resource: process.env.OAUTH2_LANGUAGES_RESOURCE,
+            scope: 'read:languages',
+        })
+        req.session.languagesEncodedAccessToken = languagesTokenData.access_token
+        req.session.refreshToken = languagesTokenData.refresh_token || currentRefreshToken
+
+        console.info('Colors AT (narrowed):', colorsTokenData.access_token?.substring(0, 20) + '...')
+        console.info('Languages AT (narrowed):', languagesTokenData.access_token?.substring(0, 20) + '...')
+
         // Redirect user to a protected area or display success
         res.redirect('/dashboard')
     } catch (error) {
@@ -143,10 +178,10 @@ app.get('/dashboard', async (req, res) => {
 
     const [colorsHtml, languagesHtml] = await Promise.all([
         scope.includes('read:colors')
-            ? loadFavoriteColorsHtml(req.session.encodedAccessToken)
+            ? loadFavoriteColorsHtml(req.session.colorsEncodedAccessToken)
             : Promise.resolve(''),
         scope.includes('read:languages')
-            ? loadFavoriteLanguagesHtml(req.session.encodedAccessToken)
+            ? loadFavoriteLanguagesHtml(req.session.languagesEncodedAccessToken)
             : Promise.resolve(''),
     ])
 
@@ -160,7 +195,7 @@ app.get('/libraries/:languageName', async (req, res) => {
     }
 
     const languageName = req.params.languageName
-    const html = await loadLibrariesHtml(req.session.encodedAccessToken, languageName)
+    const html = await loadLibrariesHtml(req.session.languagesEncodedAccessToken, languageName)
     res.send(html)
 })
 
@@ -170,7 +205,7 @@ app.get('/personalities/:languageName', async (req, res) => {
     }
 
     const languageName = req.params.languageName
-    const html = await loadPersonalitiesHtml(req.session.encodedAccessToken, languageName)
+    const html = await loadPersonalitiesHtml(req.session.languagesEncodedAccessToken, languageName)
     res.send(html)
 })
 

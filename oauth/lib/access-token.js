@@ -3,6 +3,7 @@ const { discover } = require('./discovery')
 const GrantType = Object.freeze({
     AUTHORIZATION_CODE: 'authorization_code',
     CLIENT_CREDENTIALS: 'client_credentials',
+    REFRESH_TOKEN: 'refresh_token',
     TOKEN_EXCHANGE: 'urn:ietf:params:oauth:grant-type:token-exchange',
 })
 
@@ -17,6 +18,7 @@ async function requireAccessToken({
     withPKCE = false,
     codeVerifier,
     resource,
+    refreshToken,
     subjectToken,
     subjectTokenType,
     audience,
@@ -36,6 +38,9 @@ async function requireAccessToken({
         if (withPKCE) {
             params.append('code_verifier', codeVerifier)
         }
+    } else if (grantType === GrantType.REFRESH_TOKEN) {
+        params.append('refresh_token', refreshToken)
+        if (scope) params.append('scope', scope)
     } else if (grantType === GrantType.TOKEN_EXCHANGE) {
         params.append('subject_token', subjectToken)
         params.append('subject_token_type', subjectTokenType)

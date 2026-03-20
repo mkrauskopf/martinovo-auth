@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-03-20
+
+- Token Narrowing via Refresh Token (RFC 8707): the Favorites App no longer sends a multi-audience Access Token
+  to Resource Servers. After the Authorization Code exchange, it immediately uses the Refresh Token to obtain
+  two dedicated, single-audience Access Tokens — one for Colors RS and one for Languages RS.
+- Refresh Token grant type support in the shared access-token library.
+- Removed `read:libraries` and `read:personalities` from the client's requested scopes (those are RS-to-RS scopes,
+  not client scopes).
+
 ## 2026-03-19
 
 - Personalities Resource Server (port 3004) — a protected API for famous-people data per language, with per-user
