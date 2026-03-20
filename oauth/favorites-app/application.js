@@ -31,7 +31,7 @@ app.use(
 // --- Routes ---
 
 // Initiate OAuth flow (e.g., when a user clicks "Login")
-app.get('/login_duo', (req, res) => {
+app.get('/login', (req, res) => {
     // Generate a random 'state' parameter to prevent CSRF attacks
     const state = crypto.randomBytes(16).toString('hex')
     req.session.oauthState = state // Store it in the session for verification later
@@ -186,11 +186,11 @@ app.get('/logout', (req, res) => {
 
 app.get('/', (req, res) => {
     res.send(`<h1>Home Page</h1>
-              <p><a href="/login_duo">Login with Duo</a></p>`)
+              <p><a href="/login">Login</a></p>`)
 })
 
 // Start the server
 app.listen(port, () => {
     console.info(`Server running at http://localhost:${port}`)
-    console.info(`Initiate OAuth flow by visiting http://localhost:${port}/login_duo`)
+    console.info(`Initiate OAuth flow by visiting http://localhost:${port}/login`)
 })

@@ -27,9 +27,9 @@ npm install
 node start-servers.js
 ```
 
-This launches the Favorites App and all three resource servers. Once running, visit
-[http://localhost:3000/login_duo](http://localhost:3000/login_duo) to authenticate. After login you will be
-redirected to the [dashboard](http://localhost:3000/dashboard) displaying your favorites.
+This launches the Favorites App and all three resource servers. Once running,
+visit [http://localhost:3000/login](http://localhost:3000/login) to authenticate. After logging in, you will be
+redirected to the [dashboard](http://localhost:3000/dashboard), which displays your favorites.
 
 Press `Ctrl+C` to stop all servers.
 
@@ -44,7 +44,7 @@ graph TB
     end
 
     subgraph "Authorization Server"
-        AS["Auth Server<br/>(Duo)"]
+        AS["Auth Server<br/>"]
     end
 
     subgraph "Resource Servers"

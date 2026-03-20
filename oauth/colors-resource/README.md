@@ -97,7 +97,7 @@ Expected response:
 curl -H "Authorization: Bearer <valid-jwt>" http://localhost:3001/favorite-colors
 ```
 
-Replace `<valid-jwt>` with a token obtained from the Duo AS (e.g. via the Favorites App login flow).
+Replace `<valid-jwt>` with a token obtained from the AS (e.g. via the Favorites App login flow).
 The token must have `aud` matching `http://localhost:3001`.
 
 Expected response:
