@@ -11,8 +11,8 @@ This directory contains a working OAuth demo with multiple cooperating services:
 - **`colors-resource/`** — Resource server (`:3001`) serving color data, protected by `read:colors` scope.
 - **`languages-resource/`** — Resource server (`:3002`) serving per-user language data, protected by
   `read:languages` scope. Filters results based on the JWT `sub` claim.
-- **`libraries-resource/`** — Resource server (`:3003`) serving library data, called by the Languages RS using
-  a Client Credentials grant (machine-to-machine).
+- **`libraries-resource/`** — Resource server (`:3003`) serving library data, called by the Programming Languages RS
+  using a Client Credentials grant (machine-to-machine).
 - **`personalities-resource/`** — Resource server (`:3004`) serving famous-people data per language, called by
   the Languages RS using a Token Exchange grant (RFC 8693). Unlike Libraries RS, the user's identity (`sub`)
   is preserved through the exchange, enabling per-user filtering.
@@ -49,7 +49,7 @@ graph TB
 
     subgraph "Resource Servers"
         CR["Colors RS<br/>:3001"]
-        LR["Languages RS<br/>:3002"]
+        LR["Programming<br/>Languages RS<br/>:3002"]
         BR["Libraries RS<br/>:3003"]
         PR["Personalities RS<br/>:3004"]
     end
