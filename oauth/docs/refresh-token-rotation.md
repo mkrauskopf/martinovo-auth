@@ -37,4 +37,3 @@ The [OAuth 2.1 draft](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-
 This means token narrowing code should **always be written to handle rotation** — chain RTs sequentially and update
 the stored RT after each exchange. If the AS happens not to rotate, the code still works correctly (it just stores
 the same RT again). The reverse is not true: code that assumes reusable RTs will break when rotation is enabled.
-

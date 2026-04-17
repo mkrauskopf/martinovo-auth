@@ -31,6 +31,7 @@ The server listens on **port 3001**.
 ### Bearer Token Enforcement
 
 The `validateAccessToken` middleware:
+
 - Extracts and validates the `Authorization: Bearer <token>` header
 - Returns `401 Unauthorized` if the header is missing, malformed, or the token is empty
 - Stores token info in the request for use by downstream handlers
@@ -51,6 +52,7 @@ The server refuses to start if `OAUTH2_AUDIENCE` is not configured.
 ### Static Resource Data
 
 The protected endpoint returns five color objects from `colors.json`, each with:
+
 - `id` — unique identifier
 - `name` — human-readable color name
 - `hex` — hex color code
@@ -59,6 +61,7 @@ The protected endpoint returns five color objects from `colors.json`, each with:
 ### Shared Setup
 
 The server loads `../init.js`, which:
+
 - Runs `dotenv` from the parent `oauth/` directory
 - Disables TLS certificate verification (development only)
 
@@ -84,6 +87,7 @@ curl http://localhost:3001/favorite-colors
 ```
 
 Expected response:
+
 ```json
 {
   "error": "unauthorized",
@@ -101,6 +105,7 @@ Replace `<valid-jwt>` with a token obtained from the AS (e.g. via the Favorites 
 The token must have `aud` matching `http://localhost:3001`.
 
 Expected response:
+
 ```json
 {
   "message": "Successfully retrieved favorite colors",

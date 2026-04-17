@@ -44,7 +44,7 @@ Each RS **must** validate the `aud` (audience) claim and reject tokens not inten
 lists both Colors RS and Languages RS in its audience, both RSes will accept it — they each see themselves
 in the `aud` array.
 
-An RS *could* enforce single-audience (reject tokens where `aud` contains more than its own identifier), but this
+An RS _could_ enforce single-audience (reject tokens where `aud` contains more than its own identifier), but this
 is not standard practice and would break legitimate multi-RS scenarios.
 
 ## Where the Real Risk Is
@@ -73,6 +73,7 @@ meant to share the same authorization boundary.
 If they are truly separate APIs, separate teams, separate data domains, or separate risk profiles, use separate tokens.
 
 ## Bottom line
+
 Yes — **the best practice is usually to obtain two separate access tokens, each scoped to exactly one Resource Server /
 audience.**
 
@@ -82,10 +83,10 @@ broader token scope.
 ## Summary
 
 | Party      | Role                                  | Enforcement                                      |
-|------------|---------------------------------------|--------------------------------------------------|
-| **AS**     | Enables narrowing via RT + `resource` | Permissive — honours what the client asks for     |
-| **Client** | Requests narrowest possible tokens    | **Primary enforcer** — this is where we must act  |
-| **RS**     | Validates `aud` includes itself       | Last line — but cannot catch overly broad tokens  |
+| ---------- | ------------------------------------- | ------------------------------------------------ |
+| **AS**     | Enables narrowing via RT + `resource` | Permissive — honours what the client asks for    |
+| **Client** | Requests narrowest possible tokens    | **Primary enforcer** — this is where we must act |
+| **RS**     | Validates `aud` includes itself       | Last line — but cannot catch overly broad tokens |
 
 ## References
 
