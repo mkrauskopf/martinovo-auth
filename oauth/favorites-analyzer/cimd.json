@@ -1,0 +1,9 @@
+{
+  "client_id": "https://raw.githubusercontent.com/mkrauskopf/martinovo-auth/refs/heads/cimd/oauth/favorites-analyzer/cimd.json",
+  "client_name": "Martinovo CIMD Tester",
+  "redirect_uris": ["http://localhost:3005/oauth2/callback"],
+  "grant_types": ["authorization_code"],
+  "response_types": ["code"],
+  "scope": "read:colors",
+  "token_endpoint_auth_method": "none"
+}
