@@ -45,11 +45,11 @@ async function loadFavoriteColorsHtml(accessToken) {
                 `
     }
   } catch (error) {
-    console.error('Error calling Resources Server:', error)
+    console.error('Error calling Colors Resources Server:', error)
     return `
                 <h2>Favorite Colors</h2>
                 <p style="color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 4px;">
-                    ❌ Error connecting to Resources Server. Make sure it's running on port 3001.
+                    ❌ Error connecting to Colors Resources Server. Make sure it's running on port 3001.
                 </p>
             `
   }
