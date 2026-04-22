@@ -23,12 +23,14 @@ async function requireAccessToken({
   subjectTokenType,
   audience,
 }) {
-  const authorizationHeader = `${clientId}:${clientSecret}`
-  const headers = {
-    Authorization: `Basic ${Buffer.from(authorizationHeader).toString('base64')}`,
-    'Content-Type': 'application/x-www-form-urlencoded',
+  const headers = { 'Content-Type': 'application/x-www-form-urlencoded' }
+  if (clientSecret) {
+    headers['Authorization'] = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`
   }
   const params = new URLSearchParams()
+  if (!clientSecret) {
+    params.append('client_id', clientId)
+  }
   params.append('grant_type', grantType)
   if (grantType === GrantType.CLIENT_CREDENTIALS) {
     params.append('scope', scope)
