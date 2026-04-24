@@ -1,6 +1,7 @@
 /.idea/
 /.DS_Store
 **/.env
+**/.*.env
 **/user-languages.json
 **/user-personalities.json
 node_modules/
