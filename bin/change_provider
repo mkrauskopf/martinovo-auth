@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -eu
+
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 <provider>" >&2
+  exit 1
+fi
+
+provider=$1
+target=".$provider.env"
+
+find . -name .env -type l | while read -r env_file; do
+  ln -sf "$target" "$env_file"
+  echo "$env_file -> $target"
+done
