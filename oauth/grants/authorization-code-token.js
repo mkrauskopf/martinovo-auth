@@ -4,7 +4,7 @@
 
 require('dotenv').config({ path: __dirname + '/.env' })
 
-const { discover } = require('../lib/discovery')
+const { discover, issuerToDiscoveryURL } = require('../lib/discovery')
 const { constructAuthorizeURL } = require('../lib/authorize')
 const { requireAccessToken, GrantType } = require('../lib/access-token')
 const { generatePKCE } = require('../pkce')
@@ -14,7 +14,7 @@ async function main() {
   console.info()
   console.info('Authorization Code Grant')
   console.info('========================')
-  const oauthServerInfo = await discover(process.env.OAUTH2_DISCOVERY_URL)
+  const oauthServerInfo = await discover(issuerToDiscoveryURL(process.env.OAUTH2_ISSUER_URL))
   const { codeVerifier, codeChallenge } = generatePKCE()
   const authorizeURL = constructAuthorizeURL({
     authorizationEndpoint: oauthServerInfo['authorization_endpoint'],

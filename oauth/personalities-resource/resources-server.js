@@ -3,7 +3,7 @@ require('../init')
 
 const express = require('express')
 const { createRemoteJWKSet, jwtVerify, errors: joseErrors } = require('jose')
-const { discover } = require('../lib/discovery')
+const { discover, issuerToDiscoveryURL } = require('../lib/discovery')
 const personalities = require('./personalities.json')
 const userPersonalities = require('./user-personalities.json')
 
@@ -16,13 +16,14 @@ let jwks = null
 let expectedIssuer = null
 
 async function initializeJwks() {
-  const discoveryURL = process.env.OAUTH2_DISCOVERY_URL
-  if (!discoveryURL) {
-    throw new Error('OAUTH2_DISCOVERY_URL environment variable is not set')
+  const issuerURL = process.env.OAUTH2_ISSUER_URL
+  if (!issuerURL) {
+    throw new Error('OAUTH2_ISSUER_URL environment variable is not set')
   }
   if (!process.env.OAUTH2_AUDIENCE) {
     throw new Error('OAUTH2_AUDIENCE environment variable is not set')
   }
+  const discoveryURL = issuerToDiscoveryURL(issuerURL)
   console.info(`Resource Server: discovering OAuth metadata from ${discoveryURL}`)
   const metadata = await discover(discoveryURL)
   expectedIssuer = metadata.issuer
@@ -151,7 +152,7 @@ app.use((err, req, res, _next) => {
 })
 
 const configured = !!(
-  process.env.OAUTH2_DISCOVERY_URL &&
+  process.env.OAUTH2_ISSUER_URL &&
   process.env.OAUTH2_AUDIENCE &&
   process.env.OAUTH2_CLIENT_ID &&
   process.env.OAUTH2_CLIENT_SECRET
@@ -159,7 +160,7 @@ const configured = !!(
 
 if (!configured) {
   console.warn('⚠️  Personalities Resource Server not configured — skipping startup.')
-  console.warn('   Set OAUTH2_DISCOVERY_URL, OAUTH2_AUDIENCE, OAUTH2_CLIENT_ID, and OAUTH2_CLIENT_SECRET in .env')
+  console.warn('   Set OAUTH2_ISSUER_URL, OAUTH2_AUDIENCE, OAUTH2_CLIENT_ID, and OAUTH2_CLIENT_SECRET in .env')
   process.exit(0)
 }
 

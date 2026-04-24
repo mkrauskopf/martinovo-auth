@@ -5,6 +5,7 @@ const express = require('express')
 const session = require('express-session')
 const crypto = require('crypto')
 const { constructAuthorizeURL } = require('../lib/authorize')
+const { discover, issuerToDiscoveryURL } = require('../lib/discovery')
 const { generatePKCE } = require('../pkce')
 const { dashboardTemplate } = require('./dashboard-template')
 const { loadFavoriteColorsHtml } = require('./colors-fetcher')
@@ -17,6 +18,14 @@ const app = express()
 const port = 3000
 
 const { parseJwt } = require('../lib/jwt')
+
+let asMetadata
+async function getASMetadata() {
+  if (!asMetadata) {
+    asMetadata = await discover(issuerToDiscoveryURL(process.env.OAUTH2_ISSUER_URL))
+  }
+  return asMetadata
+}
 
 // Session Middleware used to store the 'state' parameter and user tokens
 app.use(
@@ -31,7 +40,7 @@ app.use(
 // --- Routes ---
 
 // Initiate OAuth flow (e.g., when a user clicks "Login")
-app.get('/login', (req, res) => {
+app.get('/login', async (req, res) => {
   // Generate a random 'state' parameter to prevent CSRF attacks
   const state = crypto.randomBytes(16).toString('hex')
   req.session.oauthState = state // Store it in the session for verification later
@@ -39,8 +48,9 @@ app.get('/login', (req, res) => {
   const { codeVerifier, codeChallenge } = generatePKCE()
   req.session.codeVerifier = codeVerifier
 
+  const metadata = await getASMetadata()
   const authorizeURL = constructAuthorizeURL({
-    authorizationEndpoint: process.env.OAUTH2_AUTHORIZE_URL,
+    authorizationEndpoint: metadata.authorization_endpoint,
     clientId: process.env.OAUTH2_CLIENT_ID,
     redirectURI: process.env.OAUTH2_REDIRECT_URI,
     resource: process.env.OAUTH2_RESOURCE?.split(','),
@@ -83,6 +93,7 @@ app.get('/oauth2/callback', async (req, res) => {
   delete req.session.codeVerifier
 
   try {
+    const metadata = await getASMetadata()
     const {
       access_token: encodedAccessToken,
       refresh_token: refreshToken,
@@ -90,7 +101,7 @@ app.get('/oauth2/callback', async (req, res) => {
       expires_in: expiresIn,
       scope,
     } = await requireAccessToken({
-      tokenEndpoint: process.env.OAUTH2_TOKEN_URL,
+      tokenEndpoint: metadata.token_endpoint,
       grantType: GrantType.AUTHORIZATION_CODE,
       authorizationCode: code,
       clientId: process.env.OAUTH2_CLIENT_ID,
@@ -127,7 +138,7 @@ app.get('/oauth2/callback', async (req, res) => {
     let currentRefreshToken = refreshToken
 
     const colorsTokenData = await requireAccessToken({
-      tokenEndpoint: process.env.OAUTH2_TOKEN_URL,
+      tokenEndpoint: metadata.token_endpoint,
       grantType: GrantType.REFRESH_TOKEN,
       clientId: process.env.OAUTH2_CLIENT_ID,
       clientSecret: process.env.OAUTH2_CLIENT_SECRET,
@@ -139,7 +150,7 @@ app.get('/oauth2/callback', async (req, res) => {
     currentRefreshToken = colorsTokenData.refresh_token || currentRefreshToken
 
     const languagesTokenData = await requireAccessToken({
-      tokenEndpoint: process.env.OAUTH2_TOKEN_URL,
+      tokenEndpoint: metadata.token_endpoint,
       grantType: GrantType.REFRESH_TOKEN,
       clientId: process.env.OAUTH2_CLIENT_ID,
       clientSecret: process.env.OAUTH2_CLIENT_SECRET,

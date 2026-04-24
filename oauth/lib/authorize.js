@@ -1,4 +1,4 @@
-const { discover } = require('./discovery')
+const { discover, issuerToDiscoveryURL } = require('./discovery')
 
 function constructAuthorizeURL({
   authorizationEndpoint,
@@ -35,7 +35,7 @@ function constructAuthorizeURL({
 async function main() {
   console.info('\n\nRunning authorize.js...')
   console.info('=======================')
-  const oauthServerInfo = await discover(process.env.OAUTH2_DISCOVERY_URL)
+  const oauthServerInfo = await discover(issuerToDiscoveryURL(process.env.OAUTH2_ISSUER_URL))
   const authorizationURL = constructAuthorizeURL({
     authorizationEndpoint: oauthServerInfo['authorization_endpoint'],
     clientId: process.env.OAUTH2_CLIENT_ID,

@@ -1,4 +1,4 @@
-const { discover } = require('./discovery')
+const { discover, issuerToDiscoveryURL } = require('./discovery')
 
 const GrantType = Object.freeze({
   AUTHORIZATION_CODE: 'authorization_code',
@@ -83,7 +83,7 @@ async function requireAccessToken({
 async function main() {
   console.info('\n\nRunning access_token.js...')
   console.info('==========================')
-  const oauthServerInfo = await discover(process.env.OAUTH2_DISCOVERY_URL)
+  const oauthServerInfo = await discover(issuerToDiscoveryURL(process.env.OAUTH2_ISSUER_URL))
 
   // Taken from the `authorize` response in browser
   const authorizationCode = '4ef772438ec148b2b14d6a241a551af7'

@@ -4,14 +4,14 @@
 
 require('dotenv').config({ path: __dirname + '/.env' })
 
-const { discover } = require('../lib/discovery')
+const { discover, issuerToDiscoveryURL } = require('../lib/discovery')
 const { requireAccessToken, GrantType } = require('../lib/access-token')
 
 async function main() {
   console.info()
   console.info('Client Credentials Grant')
   console.info('========================')
-  const oauthServerInfo = await discover(process.env.OAUTH2_DISCOVERY_URL)
+  const oauthServerInfo = await discover(issuerToDiscoveryURL(process.env.OAUTH2_ISSUER_URL))
   await requireAccessToken({
     grantType: GrantType.CLIENT_CREDENTIALS,
     tokenEndpoint: oauthServerInfo['token_endpoint'],

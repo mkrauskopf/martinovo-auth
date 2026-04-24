@@ -3,7 +3,7 @@ require('../init')
 
 const express = require('express')
 const { createRemoteJWKSet, jwtVerify, errors: joseErrors } = require('jose')
-const { discover } = require('../lib/discovery')
+const { discover, issuerToDiscoveryURL } = require('../lib/discovery')
 const { requireAccessToken, GrantType } = require('../lib/access-token')
 const favoriteLanguages = require('./languages.json')
 const userLanguages = require('./user-languages.json')
@@ -17,13 +17,14 @@ let jwks = null
 let expectedIssuer = null
 
 async function initializeJwks() {
-  const discoveryURL = process.env.OAUTH2_DISCOVERY_URL
-  if (!discoveryURL) {
-    throw new Error('OAUTH2_DISCOVERY_URL environment variable is not set')
+  const issuerURL = process.env.OAUTH2_ISSUER_URL
+  if (!issuerURL) {
+    throw new Error('OAUTH2_ISSUER_URL environment variable is not set')
   }
   if (!process.env.OAUTH2_AUDIENCE) {
     throw new Error('OAUTH2_AUDIENCE environment variable is not set')
   }
+  const discoveryURL = issuerToDiscoveryURL(issuerURL)
   console.info(`Resource Server: discovering OAuth metadata from ${discoveryURL}`)
   const metadata = await discover(discoveryURL)
   expectedIssuer = metadata.issuer
@@ -96,8 +97,7 @@ async function getLibrariesAccessToken() {
     return librariesAccessToken
   }
 
-  const discoveryURL = process.env.OAUTH2_DISCOVERY_URL
-  const metadata = await discover(discoveryURL)
+  const metadata = await discover(issuerToDiscoveryURL(process.env.OAUTH2_ISSUER_URL))
 
   const tokenResponse = await requireAccessToken({
     tokenEndpoint: metadata.token_endpoint,
@@ -119,8 +119,7 @@ const tokenExchangeConfigured = !!(
 )
 
 async function getPersonalitiesAccessToken(subjectToken) {
-  const discoveryURL = process.env.OAUTH2_DISCOVERY_URL
-  const metadata = await discover(discoveryURL)
+  const metadata = await discover(issuerToDiscoveryURL(process.env.OAUTH2_ISSUER_URL))
 
   const tokenResponse = await requireAccessToken({
     tokenEndpoint: metadata.token_endpoint,
