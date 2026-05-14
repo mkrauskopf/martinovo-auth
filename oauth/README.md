@@ -8,6 +8,11 @@ This directory contains a working OAuth demo with multiple cooperating services:
 
 - **`favorites-app/`** — Client application (`:3000`) that users interact with. Authenticates via Authorization
   Code + PKCE flow and displays the user's favorite colors, languages, and libraries.
+- **`favorites-analyzer/`** — CLI client demonstrating **CIMD** (Client ID Metadata Document,
+  `draft-ietf-oauth-client-id-metadata-document`). The `client_id` is the public URL of a hosted JSON document;
+  no registration step needed. Calls the Colors RS.
+- **`favorites-linguist/`** — CLI client demonstrating **DCR** (Dynamic Client Registration, RFC 7591). Registers
+  itself with the AS at runtime and receives a `client_id`. Calls the Languages RS.
 - **`colors-resource/`** — Resource server (`:3001`) serving color data, protected by `read:colors` scope.
 - **`languages-resource/`** — Resource server (`:3002`) serving per-user language data, protected by
   `read:languages` scope. Filters results based on the JWT `sub` claim.
@@ -137,3 +142,35 @@ Map your `sub` to the person names you want to see (names must match `personalit
   "<your-sub-value>": ["Brendan Eich", "Guido van Rossum", "Rob Pike"]
 }
 ```
+
+## CLI Clients: CIMD vs DCR
+
+Two standalone CLI clients demonstrate different approaches to establishing a `client_id`.
+
+### CIMD Client (`favorites-analyzer/`)
+
+The `client_id` is the **public URL** of a JSON metadata document (`cimd.json`) hosted on GitHub.
+No registration step: the AS fetches the document and uses it directly. The client is pre-configured and
+immutable — anyone with the URL can inspect its metadata.
+
+Run it:
+
+```bash
+node favorites-analyzer/cimd-client.js
+```
+
+### DCR Client (`favorites-linguist/`)
+
+The client has **no pre-configured `client_id`**. On first run it POSTs its own metadata to the AS's
+`registration_endpoint` (RFC 7591), and the AS responds with a freshly issued `client_id`. The response is
+saved to `favorites-linguist/dcr-registration.json` and reused on subsequent runs. Delete that file to
+trigger a new registration.
+
+Run it:
+
+```bash
+node favorites-linguist/dcr-client.js
+```
+
+Both clients are **public clients** (PKCE, `token_endpoint_auth_method=none`, no client secret). The only
+meaningful difference is the bootstrap: CIMD uses a document, DCR uses a runtime registration round-trip.

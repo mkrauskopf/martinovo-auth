@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-05-14
+
+- DCR CLI client (`favorites-linguist/`) — demonstrates Dynamic Client Registration (RFC 7591). On first run the
+  client POSTs its own metadata to the AS's `registration_endpoint` and receives a `client_id` at runtime. The
+  registration response is persisted to `dcr-registration.json` and reused on subsequent runs; delete the file to
+  re-register. The client then runs the standard Authorization Code + PKCE flow and calls the Languages RS.
+- `.gitignore` updated to exclude `dcr-registration.json` across all directories.
+- `oauth/README.md` updated with architecture diagram additions and a CIMD vs DCR comparison section.
+
 ## 2026-03-20
 
 - Token Narrowing via Refresh Token (RFC 8707): the Favorites App no longer sends a multi-audience Access Token
