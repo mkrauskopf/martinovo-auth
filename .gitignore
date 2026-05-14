@@ -4,5 +4,6 @@
 **/.*.env
 **/user-languages.json
 **/user-personalities.json
+**/dcr-registration.json
 node_modules/
 /.claude/*local*
