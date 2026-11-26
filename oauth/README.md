@@ -28,7 +28,8 @@ This directory contains a working OAuth demo with multiple cooperating services:
 Install dependencies and start all servers with a single command:
 
 ```bash
-npm install
+nvm use
+npm ci
 node start-servers.js
 ```
 

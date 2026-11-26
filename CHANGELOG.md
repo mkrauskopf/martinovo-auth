@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-26
+
+- Node.js version pinned via `oauth/.nvmrc` (Node 26, the current LTS) for reproducible environments with `nvm use`.
+
 ## 2026-05-14
 
 - DCR CLI client (`favorites-linguist/`) — demonstrates Dynamic Client Registration (RFC 7591). On first run the
